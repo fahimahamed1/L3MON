@@ -1,6 +1,6 @@
 {
   "name": "l3mon",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "L3MON - Modern Android Remote Management Suite",
   "main": "index.js",
   "scripts": {

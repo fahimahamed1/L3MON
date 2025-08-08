@@ -139,6 +139,6 @@ This project is licensed under the [MIT License](https://github.com/fahimahamed1
 
 ---
 
-<p align="center" style="font-weight: bold; color: #3498db;">L3MON v1.2.0 - Java 17+ Edition</p>
+<p align="center" style="font-weight: bold; color: #3498db;">L3MON v1.2.1 - Java 17+ Edition</p>
 <p align="center" style="color: #95a5a6;">Modern Android Remote Management Suite</p>
 <p align="center" style="font-size: small; color: #7f8c8d;">Updated 2025 | Enhanced with latest tools and Java 17+ support</p>

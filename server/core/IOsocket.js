@@ -2,7 +2,7 @@
 const IO = require('socket.io');
 const geoip = require('geoip-lite');
 
-module.exports = function initSocketServer(serverPort, clientManager, CONST) {
+module.exports = function initSocketServer(serverPort, clientManager, config) {
     const io = IO.listen(serverPort);
     io.sockets.pingInterval = 30000;
 
@@ -24,7 +24,7 @@ module.exports = function initSocketServer(serverPort, clientManager, CONST) {
             }
         });
 
-        if (CONST.debug) {
+        if (config.debug) {
             const originalOnevent = socket.onevent;
             socket.onevent = function (packet) {
                 const args = packet.data || [];
