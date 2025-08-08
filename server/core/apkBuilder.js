@@ -1,10 +1,9 @@
 const
     cp = require('child_process'),
     fs = require('fs'),
-    CONST = require('./const');
+    CONST = require('./config');
 
-// Thanks -> https://stackoverflow.com/a/19734810/7594368
-// This function is a pain in the arse, so many issues because of it! -- hopefully this fix, fixes it!
+// Java version check for uber-apk-signer compatibility (Java 8+ supported, Java 17+ recommended)
 function javaversion(callback) {
     let spawn = cp.spawn('java', ['-version']);
     let output = "";
@@ -18,18 +17,15 @@ function javaversion(callback) {
         let javaVersion = (javaIndex !== -1) ? output.substring(javaIndex, (javaIndex + 27)) : "";
         let openJDKVersion = (openJDKIndex !== -1) ? output.substring(openJDKIndex, (openJDKIndex + 27)) : "";
         if (javaVersion !== "" || openJDKVersion !== "") {
-            // Support Java 8, 11, 17, and newer versions for APK building
+            // Support Java 8, 11, 17, and newer versions for APK building with uber-apk-signer
             const supportedVersions = ["1.8.0", "11", "17", "18", "19", "20", "21"];
             const isSupported = supportedVersions.some(version => 
                 javaVersion.includes(version) || openJDKVersion.includes(version)
             );
             
             if (isSupported) {
-                // Check if using Java 9+ and warn about signing compatibility
-                const isJava9Plus = !(javaVersion.includes("1.8.0") || openJDKVersion.includes("1.8.0"));
-                if (isJava9Plus) {
-                    console.warn("Warning: Using Java 9+ detected. APK building supported, but signing may require Java 8 compatibility mode.");
-                }
+                // uber-apk-signer is fully compatible with Java 17+, no warnings needed
+                console.log(`Java detected: ${javaVersion || openJDKVersion} - Compatible with uber-apk-signer`);
                 
                 spawn.removeAllListeners();
                 spawn.stderr.removeAllListeners();

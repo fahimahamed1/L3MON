@@ -1,4 +1,4 @@
-let CONST = require('./const'),
+let CONST = require('./config'),
     fs = require('fs'),
     crypto = require('crypto'),
     path = require('path');

@@ -1,6 +1,6 @@
 const db = require('./databaseGateway');
 
-// Add log to main DB
+// Add log to separate log DB
 function log(type, message) {
   const logType = typeof type === 'string'
     ? type
@@ -12,13 +12,13 @@ function log(type, message) {
     message
   };
 
-  db.maindb.get('admin.logs').push(entry).write();
+  db.logdb.get('logs').push(entry).write();
   console.log(`[${entry.time}] ${logType.toUpperCase()}: ${message}`);
 }
 
 // Get logs (newest first)
 function getLogs() {
-  return db.maindb.get('admin.logs')
+  return db.logdb.get('logs')
     .sortBy('time')
     .reverse()
     .value();

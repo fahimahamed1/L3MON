@@ -15,16 +15,24 @@ if (!fs.existsSync(clientDir)) fs.mkdirSync(clientDir, { recursive: true });
 const mainDBPath = path.join(baseDir, 'maindb.json');
 const maindb = lowdb(new FileSync(mainDBPath));
 
+// Log DB setup (separate from main DB)
+const logDBPath = path.join(baseDir, 'log.json');
+const logdb = lowdb(new FileSync(logDBPath));
+
 // Default admin + structure
 maindb.defaults({
   admin: {
     username: 'admin',
     password: '',            // should be MD5
     loginToken: '',
-    logs: [],
     ipLog: []
   },
   clients: []
+}).write();
+
+// Default log structure
+logdb.defaults({
+  logs: []
 }).write();
 
 // Per-client DB structure
@@ -58,5 +66,6 @@ class ClientDB {
 // Export
 module.exports = {
   maindb,
+  logdb,
   clientdb: ClientDB
 };

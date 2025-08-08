@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/fahimahamed1/L3MON/raw/main/server/assets/webpublic/logo.png" height="60"><br>
+  <img src="https://github.com/fahimahamed1/L3MON/raw/main/server/web/assets/logo/logo.png" height="60"><br>
   <b>L3MON - Modern Android Remote Management Suite</b><br>
   Powered by Node.js & Java 17+ | Updated 2025
 </p>
@@ -139,6 +139,6 @@ This project is licensed under the [MIT License](https://github.com/fahimahamed1
 
 ---
 
-<p align="center" style="font-weight: bold; color: #3498db;">L3MON v1.1.0 - Java 17+ Edition</p>
+<p align="center" style="font-weight: bold; color: #3498db;">L3MON v1.2.0 - Java 17+ Edition</p>
 <p align="center" style="color: #95a5a6;">Modern Android Remote Management Suite</p>
 <p align="center" style="font-size: small; color: #7f8c8d;">Updated 2025 | Enhanced with latest tools and Java 17+ support</p>

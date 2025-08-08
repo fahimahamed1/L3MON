@@ -1,11 +1,12 @@
 {
   "name": "l3mon",
-  "version": "1.1.0",
-  "description": "L3MON - Remote Android Management Suite",
+  "version": "1.2.0",
+  "description": "L3MON - Modern Android Remote Management Suite",
   "main": "index.js",
   "scripts": {
     "test": "node index.js",
-    "start": "node server/index.js"
+    "start": "node index.js",
+    "dev": "node server/init.js"
   },
   "author": "Fahim Ahamed",
   "license": "MIT",
