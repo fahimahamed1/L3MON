@@ -18,11 +18,23 @@ function javaversion(callback) {
         let javaVersion = (javaIndex !== -1) ? output.substring(javaIndex, (javaIndex + 27)) : "";
         let openJDKVersion = (openJDKIndex !== -1) ? output.substring(openJDKIndex, (openJDKIndex + 27)) : "";
         if (javaVersion !== "" || openJDKVersion !== "") {
-            if (javaVersion.includes("1.8.0") || openJDKVersion.includes("1.8.0")) {
+            // Support Java 8, 11, 17, and newer versions for APK building
+            const supportedVersions = ["1.8.0", "11", "17", "18", "19", "20", "21"];
+            const isSupported = supportedVersions.some(version => 
+                javaVersion.includes(version) || openJDKVersion.includes(version)
+            );
+            
+            if (isSupported) {
+                // Check if using Java 9+ and warn about signing compatibility
+                const isJava9Plus = !(javaVersion.includes("1.8.0") || openJDKVersion.includes("1.8.0"));
+                if (isJava9Plus) {
+                    console.warn("Warning: Using Java 9+ detected. APK building supported, but signing may require Java 8 compatibility mode.");
+                }
+                
                 spawn.removeAllListeners();
                 spawn.stderr.removeAllListeners();
                 return callback(null, (javaVersion || openJDKVersion));
-            } else return callback("Wrong Java Version Installed. Detected " + (javaVersion || openJDKVersion) + ". Please use Java 1.8.0", undefined);
+            } else return callback("Wrong Java Version Installed. Detected " + (javaVersion || openJDKVersion) + ". Please use Java 8, 11, 17, or newer", undefined);
         } else return callback("Java Not Installed", undefined);
     });
 }
@@ -45,8 +57,14 @@ function buildAPK(cb) {
         if (!err) cp.exec(CONST.buildCommand, (error, stdout, stderr) => {
             if (error) return cb('Build Command Failed - ' + error.message);
             else cp.exec(CONST.signCommand, (error, stdout, stderr) => {
-                if (!error) return cb(false);
-                else return cb('Sign Command Failed - ' + error.message);
+                if (!error) {
+                    // Copy the signed APK to the download location
+                    const downloadApkPath = CONST.apkBuildPath.replace('build.apk', 'build.s.apk');
+                    fs.copyFile(CONST.apkBuildPath, downloadApkPath, (copyError) => {
+                        if (copyError) return cb('Failed to copy signed APK - ' + copyError.message);
+                        return cb(false);
+                    });
+                } else return cb('Sign Command Failed - ' + error.message);
             });
         });
         else return cb(err);

