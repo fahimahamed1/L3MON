@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 
-<% include partials/head.ejs %>
+<%- include('partials/head') %>
 
 
 <body>
     <div class="ui container">
-        <% include partials/header.ejs %>
+    <%- include('partials/header') %>
         <div class="ui segment">
 
             <h3 class="ui grey dividing header">Online</h3>
@@ -80,7 +80,7 @@
             </table>
         </div>
     </div>
-    <% include partials/footer.ejs %>
+    <%- include('partials/footer') %>
 </body>
 
 </html>

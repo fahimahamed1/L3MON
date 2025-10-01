@@ -16,8 +16,44 @@
         </div>
     </div>
     <div class="ui feed">
+        <%
+            const smsStatus = pageData.status || {};
+            const smsEntries = Array.isArray(pageData.items) ? pageData.items : [];
+        %>
 
-        <% pageData.forEach((smsData) => { 
+        <% if (smsStatus.lastError) { %>
+            <div class="ui negative message">
+                <div class="header">SMS error</div>
+                <p><%= smsStatus.lastError %></p>
+            </div>
+        <% } %>
+
+        <% if (smsStatus.lastUpdated) { %>
+            <div class="ui tiny grey message">
+                <i class="history icon"></i>
+                Last sync: <%= new Date(smsStatus.lastUpdated).toLocaleString('en-GB', { timeZone: 'UTC' }) %>
+                (<%= smsStatus.itemCount || 0 %> messages cached)
+            </div>
+        <% } %>
+
+        <% if (smsStatus.truncated) { %>
+            <div class="ui yellow message">
+                <div class="header">Showing recent messages only</div>
+                <p>The device returned a partial list of SMS messages. Request again or adjust retention on the device for more data.</p>
+            </div>
+        <% } %>
+
+        <% if (!smsEntries.length) { %>
+            <div class="ui placeholder segment">
+                <div class="ui icon header">
+                    <i class="comment outline icon"></i>
+                    No SMS conversations available.
+                </div>
+                <p class="ui small text">Grant SMS permissions and, on Android 10+, set the client as the default SMS app to allow message syncing.</p>
+            </div>
+        <% } %>
+
+        <% smsEntries.forEach((smsData) => { 
                 let date = new Date(parseInt(smsData.date));
                 let status = {
                     "updown": "question",
@@ -25,7 +61,7 @@
                 };
                 if(smsData.type === "1") status = {
                     "updown": "down",
-                    "action": "Recieved From "
+                    "action": "Received From "
                 };
                 if(smsData.type === "2") status = {
                     "updown": "up",
@@ -92,7 +128,7 @@
             } else {
                 setTimeout(() => {
                     $(element).removeClass('loading');
-                    if (message === 'Requested') showNotification('#2ecc71', 'SMS Sent');
+                    if (message === 'Requested') showNotification('#2ecc71', 'SMS sent');
                     else showNotification('#2ecc71', message);
                 }, 300)
             }

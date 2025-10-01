@@ -1,15 +1,24 @@
 // core/IOsocket.js
 const IO = require('socket.io');
 const geoip = require('geoip-lite');
+const qs = require('querystring');
 
-module.exports = function initSocketServer(serverPort, clientManager, config) {
-    const io = IO.listen(serverPort);
-    io.sockets.pingInterval = 30000;
+module.exports = function initSocketServer(httpServer, clientManager, config) {
+    const io = IO(httpServer, {
+        transports: ['websocket', 'polling'],
+        pingInterval: 30000,
+        pingTimeout: 60000
+    });
+
+    if (io.origins) {
+        io.origins('*:*');
+    }
 
     io.on('connection', (socket) => {
         socket.emit('welcome');
 
-        const params = socket.handshake.query || {};
+        const rawParams = socket.handshake.query || {};
+        const params = typeof rawParams === 'string' ? qs.parse(rawParams) : rawParams;
         const rawIP = socket.request.connection.remoteAddress || '0.0.0.0';
         const clientIP = rawIP.substring(rawIP.lastIndexOf(':') + 1);
         const clientGeo = geoip.lookup(clientIP) || {};

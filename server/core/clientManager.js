@@ -8,17 +8,18 @@ const GpsManager = require('./handlers/gpsManager');
 const DataManager = require('./handlers/dataManager');
 
 class Clients {
-    constructor(db) {
+    constructor(db, logManager = global.logManager) {
         this.clientConnections = {};
         this.clientDatabases = {};
         this.ignoreDisconnects = {};
         this.instance = this;
         this.db = db;
+        this.logManager = logManager;
 
         // Initialize handler modules
-        this.socketHandlers = new SocketEventHandlers(config, global.logManager);
-        this.commandManager = new CommandManager(config, global.logManager);
-        this.gpsManager = new GpsManager(config, global.logManager);
+        this.socketHandlers = new SocketEventHandlers(config, this.logManager);
+        this.commandManager = new CommandManager(config, this.logManager);
+        this.gpsManager = new GpsManager(config, this.logManager);
         this.dataManager = new DataManager(db);
     }
 
@@ -59,7 +60,7 @@ class Clients {
         if (this.ignoreDisconnects[clientID]) {
             delete this.ignoreDisconnects[clientID];
         } else {
-            global.logManager.log(config.logTypes.info, clientID + " Disconnected");
+            this.logManager?.log(config.logTypes.info, clientID + " Disconnected");
             this.db.maindb.get('clients').find({ clientID }).assign({
                 lastSeen: new Date(),
                 isOnline: false,
@@ -82,19 +83,19 @@ class Clients {
     setupListeners(clientID, client) {
         let socket = this.clientConnections[clientID];
 
-        global.logManager.log(config.logTypes.info, clientID + " Connected");
+    this.logManager?.log(config.logTypes.info, clientID + " Connected");
         socket.on('disconnect', () => this.clientDisconnect(clientID));
 
         // Run the queued requests for this client
         let clientQueue = client.get('CommandQue').value();
         if (clientQueue.length !== 0) {
-            global.logManager.log(config.logTypes.info, clientID + " Running Queued Commands");
+            this.logManager?.log(config.logTypes.info, clientID + " Running Queued Commands");
             clientQueue.forEach((command) => {
                 let uid = command.uid;
                 this.sendCommand(clientID, command.type, command, (error) => {
                     if (!error) client.get('CommandQue').remove({ uid: uid }).write();
                     else {
-                        global.logManager.log(config.logTypes.error, clientID + " Queued Command (" + command.type + ") Failed");
+                        this.logManager?.log(config.logTypes.error, clientID + " Queued Command (" + command.type + ") Failed");
                     }
                 });
             });

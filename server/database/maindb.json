@@ -5,5 +5,21 @@
     "loginToken": "",
     "ipLog": []
   },
-  "clients": []
+  "clients": [
+    {
+      "clientID": "",
+      "firstSeen": "",
+      "lastSeen": "",
+      "isOnline": true,
+      "dynamicData": {
+        "clientIP": "",
+        "clientGeo": {},
+        "device": {
+          "model": "",
+          "manufacture": "",
+          "version": ""
+        }
+      }
+    }
+  ]
 }
