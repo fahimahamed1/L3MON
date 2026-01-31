@@ -7,7 +7,7 @@
 >
 > ✅ **Use the updated and improved version instead:**
 >
-> 👉 **L3MON – Modern Android Remote Management Suite**  
+> 👉 **Fason – Modern Android Remote Management Suite**  
 > 🔗 https://github.com/fahimahamed1/FasonRat.git
 >
 > The newer project includes:
@@ -20,7 +20,7 @@
 
 <p align="center">
   <img src="https://github.com/fahimahamed1/L3MON/raw/main/server/web/assets/logo/logo.png" height="60"><br>
-  <b>Fason - Modern Android Remote Management Suite</b><br>
+  <b>L3MON - Modern Android Remote Management Suite</b><br>
   Powered by Node.js & Java 17+ | Updated 2025
 </p>
 
