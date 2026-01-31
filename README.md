@@ -1,6 +1,26 @@
+> ⚠️ **IMPORTANT NOTICE – PROJECT DEPRECATED**
+>
+> This project is **OLD and NO LONGER RECOMMENDED for use**.
+>
+> 🚫 Please **DO NOT use this project** for new installations, testing, or deployments.  
+> It is kept **only for archival and learning purposes**.
+>
+> ✅ **Use the updated and improved version instead:**
+>
+> 👉 **L3MON – Modern Android Remote Management Suite**  
+> 🔗 https://github.com/fahimahamed1/FasonRat.git
+>
+> The newer project includes:
+> - Better performance and stability  
+> - Updated Android & server compatibility  
+> - Improved security and APK signing  
+> - Actively maintained codebase  
+>
+> ⚠️ Using this deprecated version may result in bugs, incompatibility, or security risks.
+
 <p align="center">
   <img src="https://github.com/fahimahamed1/L3MON/raw/main/server/web/assets/logo/logo.png" height="60"><br>
-  <b>L3MON - Modern Android Remote Management Suite</b><br>
+  <b>Fason - Modern Android Remote Management Suite</b><br>
   Powered by Node.js & Java 17+ | Updated 2025
 </p>
 
